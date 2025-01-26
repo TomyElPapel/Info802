@@ -9,12 +9,13 @@ const getPathData = require("../../services/getPathData");
 router.get("/:startLat/:startLon/:endLat/:endLon", async (req, res, err) => {
     const {startLat, startLon, endLat, endLon} = req.params;
 
+    var data;
     try {
-        const data = await getPathData([startLat, startLon], [endLat, endLon], "roulette");
+        data = await getPathData([startLat, startLon], [endLat, endLon], "roulette");
         res.status(200).json(data)
     } catch(e) {
         console.log(e);
-        res.status(400).json(e)
+        res.status(400).json(data);
     }
 });
 

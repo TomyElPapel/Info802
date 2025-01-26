@@ -1,4 +1,4 @@
-from spyne import Application, rpc, Integer, Unicode, Iterable, ServiceBase, Float
+from spyne import Application, rpc, ServiceBase, Float
 from spyne.protocol.soap import Soap11
 from spyne.server.wsgi import WsgiApplication
 

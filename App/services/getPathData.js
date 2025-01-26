@@ -6,72 +6,79 @@ const getRideInfo = require("./getRideInfo");
 
 
 async function getPathData(start, end, vehicule) {
+    start = [parseFloat(start[0]), parseFloat(start[1])];
+    end = [parseFloat(end[0]), parseFloat(end[1])];
+
     const vehicleData = {
         distance: 100,
-        autonomie: 25,
-        chargement: 800,
+        autonomie: 100,
+        chargement: 400,
     }
 
-    var totalDistance = 0;
     const rideInfo = await getRideInfo(vehicleData.distance, vehicleData.autonomie, vehicleData.chargement);
     
-    let basePath = await getPath(start[0], start[1], end[0], end[1]);
-    const distancePath = [];
-    const bornPath = [];
+    let currentPoint = start;
+    const validPath = [];
+    var totalDistance = 0;
+    var stationNb = 0;
 
-    console.log(basePath)
-    var d = 0;
-    var i = 0;
-    const ratio = 0.8;
+
     while (true) {
-        d += getDistance(basePath.points[i][0], basePath.points[i][1], basePath.points[i + 1][0], basePath.points[i + 1][1]);
-        distancePath[i] = d;
-
-        if (d > vehicleData.autonomie * ratio) {
-            while (true) {
-                let born = await getBorn(basePath.points[i], Math.floor(vehicleData.autonomie * (1 - ratio)));
-                if (born) {
-                    basePath = await getPath(basePath.points[i][0], basePath.points[i][1], born[0], born[1]);
-                    bornPath.push(born);
-                    born = null;
-                    i = 0;
-                    d = 0;
-                    break;
-                }
-                i--;
-                if (i == -1) {
-                    throw "aaaaaaaah";
-                }
-            }
+        let currentPath = await getPath(currentPoint, end);
+        if (currentPath.distance < vehicleData.autonomie * 1000) {
+            totalDistance += currentPath.distance;
+            validPath.push(currentPath.points);
+            break;
         } else {
-            i++;
-            if (i >= basePath.points.length) {
+            let stations = await getBorn(currentPoint, vehicleData.autonomie, end);
+ 
+            if (stations.length == 0) {
+                console.log("aucune born dispo");
                 break;
             }
+
+            console.log(stations);
+
+            let stationPath = await getPath(currentPoint, stations[0]);
+            totalDistance += getDistance(currentPoint, stationPath.points[stationPath.points.length - 1]) * 1000;
+            currentPoint = stationPath.points[stationPath.points.length - 1];
+            console.log(currentPoint);
+            validPath.push(stationPath.points);
+            stationNb++;
         }
     }
 
     return {
         time: rideInfo.time,
         price: rideInfo.price,
-        bornesPath: bornPath,
-        totalDistance: d
+        paths: validPath,
+        totalDistance: totalDistance,
+        stationNb: stationNb
     };
 }
 
-function getDistance(lat1, lon1, lat2, lon2) {
+function getDistance(point1, point2) {
     const R = 6371;
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const dLat = (point2[0] - point1[0]) * Math.PI / 180;
+    const dLon = (point2[1] - point1[1]) * Math.PI / 180;
 
     const a = 
         Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+        Math.cos(point1[0] * Math.PI / 180) * Math.cos(point2[0] * Math.PI / 180) * 
         Math.sin(dLon / 2) * Math.sin(dLon / 2);
 
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
 }
+
+
+function orderPointsByDistance(points, center) {
+    return points.sort((a, b) => {
+        const distanceA = getDistance(a, center);
+        const distanceB = getDistance(b, center);
+        return distanceA - distanceB;
+    });
+} 
 
 
 module.exports = getPathData;

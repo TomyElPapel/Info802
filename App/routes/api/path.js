@@ -12,7 +12,6 @@ router.get("/:startLat/:startLon/:endLat/:endLon", async (req, res, err) => {
         const path = await getPath(startLat, startLon, endLat, endLon);
         res.status(200).json(path)
     } catch(e) {
-        console.log(e);
         res.status(400).json(e)
     }
 });
