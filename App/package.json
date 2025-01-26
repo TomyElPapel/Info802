@@ -14,6 +14,7 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "fs": "^0.0.1-security",
+    "info802": "file:",
     "path": "^0.12.7",
     "soap": "^1.1.7"
   }
