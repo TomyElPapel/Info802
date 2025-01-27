@@ -8,10 +8,25 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 </head>
 <body>
+
+    <button id="pathButton" onclick="displayPath()">Calculer chemin</button>
+
+
+    <div class="popup" id="popup">
+        <button class="button" id="buttonSetStart">Depart</button>
+        <button class="button" id="buttonSetEnd">Arrivé</button>
+        <button class="button" onclick="closePopup()">Annuler</button>
+    </div>
+
+    
+
     <div id="map"></div>
+
+    
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios@1.6.7/dist/axios.min.js"></script>
+    <script src="/leaflet-color-markers.js"></script>
     <script src="/main.js"></script>
 </body>
 </html>

@@ -11,7 +11,7 @@ async function getPathData(start, end, vehicule) {
 
     const vehicleData = {
         distance: 100,
-        autonomie: 100,
+        autonomie: 200,
         chargement: 400,
     }
 
@@ -37,12 +37,9 @@ async function getPathData(start, end, vehicule) {
                 break;
             }
 
-            console.log(stations);
-
             let stationPath = await getPath(currentPoint, stations[0]);
             totalDistance += getDistance(currentPoint, stationPath.points[stationPath.points.length - 1]) * 1000;
             currentPoint = stationPath.points[stationPath.points.length - 1];
-            console.log(currentPoint);
             validPath.push(stationPath.points);
             stationNb++;
         }

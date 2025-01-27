@@ -15,28 +15,173 @@ async function getData(start, end) {
     });
 }
 
+async function getClosestPoint(point) {
+    return new Promise((resolve, reject) => {
+        const url = apiUrl + `closestPoint/${point[0]}/${point[1]}`;
+        console.log(url);
+        axios.get(url)
+        .then(response => {
+            resolve(response.data);
+        })
+        .catch(err => {
+            console.log(err);
+            reject(err);
+        });
+    });
+}
 
-async function main() {
-    const dest = [48.85720420695038, 2.34708152969578];
-    const ori = [45.64426567622021, 5.867705957983265];
 
-    const map = L.map('map').setView([46.151, 6.33], 8);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    }).addTo(map);    
 
-    const data = await getData(ori, dest);
+function showPopup(pixel, coord) {
+    let popup = document.getElementById('popup');
+    popup.style.display = 'flex';
+    popup.style.top = pixel.y + 'px';
+    popup.style.left = pixel.x + 'px';
+    popup.style.transform = 'none';
+    popup.style.zIndex = 999999;
 
-    console.log(data.totalDistance);
 
-    L.marker(dest).addTo(map);
-    L.marker(ori).addTo(map);
+    if (selectionMarker) {
+        selectionMarker.remove();
+    }
+    selectedCoord = coord;
+    selectionMarker = L.marker(coord, {
+        icon: blackIcon
+    });
+    selectionMarker.addTo(map);
+}
 
-    for (let path of data.paths) {
-        L.polyline(path, {color: 'red', weight: 10}).addTo(map);
-        L.marker(path[path.length-1]).addTo(map);
+
+function closePopup() {
+    document.getElementById('popup').style.display = 'none';
+    selectionMarker?.remove();
+}
+
+
+async function setStart(coord) {
+    const point = await getClosestPoint(coord);
+    if (point) {
+        start = point;
+
+        if (startMarker) {
+            startMarker.setLatLng(start);
+        } else {
+            startMarker = L.marker(start, {
+                icon: greenIcon
+            });
+            startMarker.addTo(map);
+        }
     }
 }
 
-main();
+async function setEnd(coord) {
+    const point = await getClosestPoint(coord);
+    if (point) {
+        end = point;
+
+        if (endMarker) {
+            endMarker.setLatLng(end);
+        } else {
+            endMarker = L.marker(end, {
+                icon: redIcon
+            });
+            endMarker.addTo(map);
+        }
+    }
+}
+
+var selectionMarker = null;
+var selectedCoord = null;
+
+var start = null;
+var end = null;
+
+var startMarker = null;
+var endMarker = null;
+
+var pathPolyline = [];
+var pathMarker = [];
+
+const setStartButton = document.getElementById("buttonSetStart");
+const setEndButton = document.getElementById("buttonSetEnd");
+
+setStartButton.addEventListener("click", (event) => {
+    if (selectedCoord) {
+        setStart(selectedCoord);
+        resetPath();
+    }
+    closePopup();
+});
+
+setEndButton.addEventListener("click", (event) => {
+    if (selectedCoord) {
+        setEnd(selectedCoord);
+        resetPath();
+    }
+    closePopup();
+});
+
+
+const map = L.map('map').setView([46.151, 6.33], 8);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+}).addTo(map);
+map.doubleClickZoom.disable(); 
+
+
+map.on("dblclick", async (event) => {
+    showPopup(event.containerPoint, [event.latlng.lat, event.latlng.lng]);
+});
+
+map.on("move", async (event) => {
+    closePopup();
+});
+
+map.on("zoomstart", async (event) => {
+    closePopup();
+});
+
+function resetPath() {
+    for (let p of pathPolyline) {
+        p.remove();
+    }
+
+    for (let m of pathMarker) {
+        m.remove();
+    }
+
+    pathMarker = [];
+    pathPolyline = [];
+}
+
+
+async function displayPath() {
+    if (!start || !end) {
+        return;
+    }
+
+    resetPath();
+
+    const data = await getData(start, end);
+
+
+    for (let i = 0; i < data.paths.length - 1; i++) {
+        let path = data.paths[i];
+
+        pathPolyline.push(
+            L.polyline(path, {color: 'red', weight: 5}).addTo(map)
+        );
+        
+        pathMarker.push(
+            L.marker(path[path.length-1], {
+                icon: blueIcon
+            }).addTo(map)
+        )
+    }
+    let path = data.paths[data.paths.length - 1];
+
+    pathPolyline.push(
+        L.polyline(path, {color: 'red', weight: 5}).addTo(map)
+    );
+}
