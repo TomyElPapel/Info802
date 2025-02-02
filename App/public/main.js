@@ -1,8 +1,8 @@
 const apiUrl = "http://localhost:3000/api/";
 
-async function getData(start, end) {
+async function getData(start, end, distance, charge) {
     return new Promise((resolve, reject) => {
-        const url = apiUrl + `pathData/${start[0]}/${start[1]}/${end[0]}/${end[1]}`;
+        const url = apiUrl + `pathData/${start[0]}/${start[1]}/${end[0]}/${end[1]}/${distance}/${charge}`;
         console.log(url);
         axios.get(url)
         .then(response => {
@@ -28,6 +28,24 @@ async function getClosestPoint(point) {
             reject(err);
         });
     });
+}
+
+function createElement(tag, { classes = [], textContent = '', parent = null } = {}) {
+    const element = document.createElement(tag);
+
+    if (Array.isArray(classes)) {
+        element.classList.add(...classes);
+    }
+
+    if (textContent) {
+        element.textContent = textContent;
+    }
+
+    if (parent instanceof HTMLElement) {
+        parent.appendChild(element);
+    }
+
+    return element;
 }
 
 
@@ -90,20 +108,11 @@ async function setEnd(coord) {
     }
 }
 
-var selectionMarker = null;
-var selectedCoord = null;
-
-var start = null;
-var end = null;
-
-var startMarker = null;
-var endMarker = null;
-
-var pathPolyline = [];
-var pathMarker = [];
 
 const setStartButton = document.getElementById("buttonSetStart");
 const setEndButton = document.getElementById("buttonSetEnd");
+
+const selectedVehicleDiv = document.getElementById("selectedDiv");
 
 setStartButton.addEventListener("click", (event) => {
     if (selectedCoord) {
@@ -122,6 +131,7 @@ setEndButton.addEventListener("click", (event) => {
 });
 
 
+
 const map = L.map('map').setView([46.151, 6.33], 8);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
@@ -131,7 +141,10 @@ map.doubleClickZoom.disable();
 
 
 map.on("dblclick", async (event) => {
-    showPopup(event.containerPoint, [event.latlng.lat, event.latlng.lng]);
+    showPopup({
+        x: event.originalEvent.clientX,
+        y: event.originalEvent.clientY
+    }, [event.latlng.lat, event.latlng.lng]);
 });
 
 map.on("move", async (event) => {
@@ -141,6 +154,7 @@ map.on("move", async (event) => {
 map.on("zoomstart", async (event) => {
     closePopup();
 });
+
 
 function resetPath() {
     for (let p of pathPolyline) {
@@ -161,9 +175,13 @@ async function displayPath() {
         return;
     }
 
+    if (!selectedVehicle) {
+        return;
+    }
+
     resetPath();
 
-    const data = await getData(start, end);
+    const data = await getData(start, end, selectedVehicle.range.chargetrip_range.worst, 10);
 
 
     for (let i = 0; i < data.paths.length - 1; i++) {
@@ -185,3 +203,113 @@ async function displayPath() {
         L.polyline(path, {color: 'red', weight: 5}).addTo(map)
     );
 }
+
+
+async function vehicleSetup() {
+    const query = `query vehicleList($page: Int, $size: Int, $search: String) {
+        vehicleList(
+          page: $page, 
+          size: $size, 
+          search: $search, 
+        ) {
+          id
+          naming {
+            make
+            model
+          }
+          media {
+            image {
+              thumbnail_url
+            }
+          }
+          range {
+            chargetrip_range {
+              worst
+              best
+            }
+          }
+        }
+      }`;
+
+
+    fetch('https://api.chargetrip.io/graphql', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            'x-client-id': '5ed1175bad06853b3aa1e492',
+            'x-app-id': '623998b2c35130073829b2d2',
+        },
+        body: JSON.stringify({
+            query: query,
+            variables: { page: 0, size: 20 },
+        })
+    }).then(async (res) => {
+        const vehicles = (await res.json()).data.vehicleList;
+
+        const vList = document.getElementById("vehicleList");
+        console.log(vehicles);
+        for (let v of vehicles) {
+            let e = createVehicleElement(v);
+            e.addEventListener("click", (e) => {
+                setSelectedVehicle(v);
+            });
+            vList.appendChild(e);
+        }
+
+
+    }).catch((e) => {
+        if (e) console.log(e);
+    });
+}
+
+function setSelectedVehicle(vehicle) {
+    resetPath();
+    selectedVehicle = vehicle;
+    while (selectedVehicleDiv.childElementCount > 0) {
+        selectedVehicleDiv.children[0].remove();
+    }
+
+    selectedVehicleDiv.appendChild(createElement("p", {textContent: vehicle.naming.make}));
+    selectedVehicleDiv.appendChild(createElement("p", {textContent: vehicle.naming.name}));
+    selectedVehicleDiv.appendChild(createElement("p", {textContent: "distance : " + vehicle.range.chargetrip_range.best}));
+}
+
+function createVehicleElement(vehicle) {
+    const div = createElement("div", { classes: ["vehicle"]});
+    const d = createElement("div");
+    const name = createElement("p", { textContent: vehicle.naming.model});
+    const make = createElement("p", { textContent: vehicle.naming.make});
+    const img = createElement("img");
+    img.src = vehicle.media.image.thumbnail_url;
+
+    div.appendChild(img);
+    div.appendChild(d);
+    d.appendChild(make);
+    d.appendChild(name);
+
+    return div;
+}
+
+var selectedVehicle = null;
+
+var selectionMarker = null;
+var selectedCoord = null;
+
+var start = null;
+var end = null;
+
+var startMarker = null;
+var endMarker = null;
+
+var pathPolyline = [];
+var pathMarker = [];
+
+async function main() {
+    vehicleSetup();
+}
+
+
+main();
+
+

@@ -9,7 +9,7 @@ async function getClosestPoint(coord) {
                 "locations":[
                     [coord[1], coord[0]]
                 ],
-                "radius": 500
+                "radius": 2000
             }, {
                 headers: {
                     Authorization: `Bearer ${process.env.OPEN_ROUTE_SERVICE_TOKEN}`

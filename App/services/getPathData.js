@@ -5,18 +5,12 @@ const getRideInfo = require("./getRideInfo");
 
 
 
-async function getPathData(start, end, vehicule) {
+async function getPathData(start, end, autonomie, chargement) {
     start = [parseFloat(start[0]), parseFloat(start[1])];
     end = [parseFloat(end[0]), parseFloat(end[1])];
+    autonomie = parseFloat(autonomie);
+    chargement = parseFloat(chargement);
 
-    const vehicleData = {
-        distance: 100,
-        autonomie: 200,
-        chargement: 400,
-    }
-
-    const rideInfo = await getRideInfo(vehicleData.distance, vehicleData.autonomie, vehicleData.chargement);
-    
     let currentPoint = start;
     const validPath = [];
     var totalDistance = 0;
@@ -25,12 +19,12 @@ async function getPathData(start, end, vehicule) {
 
     while (true) {
         let currentPath = await getPath(currentPoint, end);
-        if (currentPath.distance < vehicleData.autonomie * 1000) {
+        if (currentPath.distance < autonomie * 1000) {
             totalDistance += currentPath.distance;
             validPath.push(currentPath.points);
             break;
         } else {
-            let stations = await getBorn(currentPoint, vehicleData.autonomie, end);
+            let stations = await getBorn(currentPoint, autonomie, end);
  
             if (stations.length == 0) {
                 console.log("aucune born dispo");
@@ -44,6 +38,8 @@ async function getPathData(start, end, vehicule) {
             stationNb++;
         }
     }
+
+    const rideInfo = await getRideInfo(totalDistance, autonomie, chargement);
 
     return {
         time: rideInfo.time,

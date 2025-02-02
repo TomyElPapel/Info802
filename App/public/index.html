@@ -9,19 +9,24 @@
 </head>
 <body>
 
-    <button id="pathButton" onclick="displayPath()">Calculer chemin</button>
+    <div id="vehicleDiv">
+        <div id="selectedDiv">
+            <p> aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaah<p>
+        </div>
+        <div id="vehicleList">
 
-
-    <div class="popup" id="popup">
-        <button class="button" id="buttonSetStart">Depart</button>
-        <button class="button" id="buttonSetEnd">Arrivé</button>
-        <button class="button" onclick="closePopup()">Annuler</button>
+        </div>
     </div>
 
-    
-
-    <div id="map"></div>
-
+    <div id="mapDiv">
+        <button id="pathButton" onclick="displayPath()">Calculer chemin</button>
+        <div class="popup" id="popup">
+            <button class="button" id="buttonSetStart">Depart</button>
+            <button class="button" id="buttonSetEnd">Arrivé</button>
+            <button class="button" onclick="closePopup()">Annuler</button>
+        </div>
+        <div id="map"></div>
+    </div>
     
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>

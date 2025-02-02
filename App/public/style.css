@@ -1,9 +1,64 @@
 #map { 
-    height: 100vh; 
+    height: 100vh;
+    width: 100%; 
+}
+
+
+body {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+    margin: 0;
+    padding: 0;
+}
+
+body > * {
+    height: 100vh;
+}
+
+#vehicleDiv {
+    width: 25vw;
+    display: flex;
+    flex-direction: column;
+}
+
+#selectedDiv {
+    flex: 1;
+}
+
+#mapDiv {
+    width: 100%;
+}
+
+.vehicle {
+    display: flex;
+    flex-direction: row;
+    border: 5px;
+    border-color: black;
+    border-style: solid;
+    margin: 10px;
+    cursor:pointer;
+}
+
+.vehicle > div {
+    display: flex;
+    flex-direction: column;
+}
+
+.vehicle > img {
+    height: 50px;
+}
+
+#vehicleList {
+    height: 80%;
+    overflow: auto;
+    flex-direction: column;
+    display: flex;
+    align-content: start;
 }
 
 .popup {
-    display: flex;
+    display: none;
     flex-direction: column;
     position: fixed;
     top: 50%;
@@ -34,7 +89,7 @@
 #pathButton {
     display: block;
     position: absolute;
-    top: 80px;
-    left: 80px;
+    top: 20vh;
+    left: 25vw;
     z-index: 999999;
 }
