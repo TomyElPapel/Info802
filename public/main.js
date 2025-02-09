@@ -1,8 +1,6 @@
-const apiUrl = "http://localhost:3000/api/";
-
 async function getData(start, end, distance, charge) {
     return new Promise((resolve, reject) => {
-        const url = apiUrl + `pathData/${start[0]}/${start[1]}/${end[0]}/${end[1]}/${distance}/${charge}`;
+        const url = `/api/pathData/${start[0]}/${start[1]}/${end[0]}/${end[1]}/${distance}/${charge}`;
         console.log(url);
         axios.get(url)
         .then(response => {
@@ -17,7 +15,7 @@ async function getData(start, end, distance, charge) {
 
 async function getClosestPoint(point) {
     return new Promise((resolve, reject) => {
-        const url = apiUrl + `closestPoint/${point[0]}/${point[1]}`;
+        const url = `/api/closestPoint/${point[0]}/${point[1]}`;
         console.log(url);
         axios.get(url)
         .then(response => {
