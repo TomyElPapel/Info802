@@ -1,4 +1,6 @@
 const dotenv = require("dotenv");
+const cors = require('cors')
+
 dotenv.config();
 
 const express = require("express");
@@ -8,6 +10,7 @@ const routerSetup = require("./scripts/routerSetup");
 (async () => {
     const app = express();
     app.use(express.json());
+    app.use(cors());
     app.use(express.static(path.join(__dirname, 'public')));
 
     const port = process.env.PORT;
