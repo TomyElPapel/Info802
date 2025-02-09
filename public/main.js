@@ -262,7 +262,7 @@ async function vehicleSetup() {
             variables: { page: 0, size: 20 },
         })
     }).then(async (res) => {
-        console.log(res.data);
+        if (res.errors) console.log(errors);
         const vehicles = (await res.json()).data.vehicleList;
 
         const vList = document.getElementById("vehicleList");
