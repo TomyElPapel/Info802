@@ -39,7 +39,7 @@ async function getPathData(start, end, autonomie, chargement) {
         }
     }
 
-    const rideInfo = await getRideInfo(totalDistance, autonomie, chargement);
+    const rideInfo = await getRideInfo(totalDistance / 1000, autonomie, chargement);
 
     return {
         time: rideInfo.time,
@@ -63,15 +63,6 @@ function getDistance(point1, point2) {
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
 }
-
-
-function orderPointsByDistance(points, center) {
-    return points.sort((a, b) => {
-        const distanceA = getDistance(a, center);
-        const distanceB = getDistance(b, center);
-        return distanceA - distanceB;
-    });
-} 
 
 
 module.exports = getPathData;

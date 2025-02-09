@@ -11,7 +11,7 @@
 
     <div id="vehicleDiv">
         <div id="selectedDiv">
-            <p> aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaah<p>
+            <p>aucun vehicule selectionné :(<p>
         </div>
         <div id="vehicleList">
 
@@ -19,7 +19,15 @@
     </div>
 
     <div id="mapDiv">
-        <button id="pathButton" onclick="displayPath()">Calculer chemin</button>
+        <div id="pathInfoDiv">
+            <div>
+                <p id="time">Temps trajet : ?</p>
+                <p id="price">prix trajet : ?</p>
+                <p id="distance">distance : ?</p>
+                <button id="pathButton" onclick="displayPath()">Calculer chemin</button>
+            </div>
+        </div>
+
         <div class="popup" id="popup">
             <button class="button" id="buttonSetStart">Depart</button>
             <button class="button" id="buttonSetEnd">Arrivé</button>

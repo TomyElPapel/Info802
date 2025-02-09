@@ -112,6 +112,11 @@ async function setEnd(coord) {
 const setStartButton = document.getElementById("buttonSetStart");
 const setEndButton = document.getElementById("buttonSetEnd");
 
+const priceP = document.getElementById("price");
+const timeP = document.getElementById("time");
+const distanceP = document.getElementById("distance");
+
+
 const selectedVehicleDiv = document.getElementById("selectedDiv");
 
 setStartButton.addEventListener("click", (event) => {
@@ -165,6 +170,10 @@ function resetPath() {
         m.remove();
     }
 
+    timeP.textContent = "temps trajet : ?";
+    priceP.textContent = "prix trajet : ?";
+    distanceP.textContent = "distance : ?";
+
     pathMarker = [];
     pathPolyline = [];
 }
@@ -180,9 +189,11 @@ async function displayPath() {
     }
 
     resetPath();
+    const data = await getData(start, end, selectedVehicle.range.chargetrip_range.worst, selectedVehicle.connectors[0].time / 60);
 
-    const data = await getData(start, end, selectedVehicle.range.chargetrip_range.worst, 10);
-
+    timeP.textContent = "temps trajet : " + timeToStr(data.time);
+    priceP.textContent = "prix trajet : " + data.price + "€";
+    distanceP.textContent = "distance : " + Math.round(data.totalDistance / 1000) + "km";
 
     for (let i = 0; i < data.paths.length - 1; i++) {
         let path = data.paths[i];
@@ -204,6 +215,11 @@ async function displayPath() {
     );
 }
 
+function timeToStr(time) {
+    const h = Math.floor(time);
+    const m = Math.floor((time - h) * 60);
+    return h + "h " + m + "min"; 
+}
 
 async function vehicleSetup() {
     const query = `query vehicleList($page: Int, $size: Int, $search: String) {
@@ -227,6 +243,9 @@ async function vehicleSetup() {
               worst
               best
             }
+          }
+          connectors {
+            time
           }
         }
       }`;
@@ -269,10 +288,13 @@ function setSelectedVehicle(vehicle) {
     while (selectedVehicleDiv.childElementCount > 0) {
         selectedVehicleDiv.children[0].remove();
     }
-
+    const img = createElement("img");
+    img.src = vehicle.media.image.thumbnail_url;
+    selectedVehicleDiv.appendChild(img);
     selectedVehicleDiv.appendChild(createElement("p", {textContent: vehicle.naming.make}));
     selectedVehicleDiv.appendChild(createElement("p", {textContent: vehicle.naming.name}));
-    selectedVehicleDiv.appendChild(createElement("p", {textContent: "distance : " + vehicle.range.chargetrip_range.best}));
+    selectedVehicleDiv.appendChild(createElement("p", {textContent: "distance : " + vehicle.range.chargetrip_range.best + "km"}));
+    selectedVehicleDiv.appendChild(createElement("p", {textContent: "temps par charge : " + timeToStr(vehicle.connectors[0].time / 60)}));
 }
 
 function createVehicleElement(vehicle) {

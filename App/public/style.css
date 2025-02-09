@@ -23,7 +23,11 @@ body > * {
 }
 
 #selectedDiv {
-    flex: 1;
+    height: 35%;
+    border: 5px;
+    border-color: black;
+    border-style: solid;
+    margin: 10px 10px 0px 10px;
 }
 
 #mapDiv {
@@ -50,7 +54,7 @@ body > * {
 }
 
 #vehicleList {
-    height: 80%;
+    flex: 1;
     overflow: auto;
     flex-direction: column;
     display: flex;
@@ -86,10 +90,22 @@ body > * {
 }
 
 
-#pathButton {
+#pathInfoDiv {
     display: block;
     position: absolute;
     top: 20vh;
     left: 25vw;
     z-index: 999999;
+    background-color: white;
+    flex-direction: column;
+    border-radius: 10%;
+    border-style: solid;
+}
+
+#pathInfoDiv > div {
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    align-items: center;
+    margin: 5px;
 }
