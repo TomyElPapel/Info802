@@ -13,6 +13,21 @@ async function getData(start, end, distance, charge) {
     });
 }
 
+async function getVehiclesList() {
+    return new Promise((resolve, reject) => {
+        const url = `/api/vehiclesList`;
+        console.log(url);
+        axios.get(url)
+        .then(response => {
+            resolve(response.data);
+        })
+        .catch(err => {
+            console.log(err);
+            reject(err);
+        });
+    });
+}
+
 async function getClosestPoint(point) {
     return new Promise((resolve, reject) => {
         const url = `/api/closestPoint/${point[0]}/${point[1]}`;
@@ -219,67 +234,6 @@ function timeToStr(time) {
     return h + "h " + m + "min"; 
 }
 
-async function vehicleSetup() {
-    const query = `query vehicleList($page: Int, $size: Int, $search: String) {
-        vehicleList(
-          page: $page, 
-          size: $size, 
-          search: $search, 
-        ) {
-          id
-          naming {
-            make
-            model
-          }
-          media {
-            image {
-              thumbnail_url
-            }
-          }
-          range {
-            chargetrip_range {
-              worst
-              best
-            }
-          }
-          connectors {
-            time
-          }
-        }
-      }`;
-
-
-    fetch('https://api.chargetrip.io/graphql', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-            'x-client-id': '5ed1175bad06853b3aa1e492',
-            'x-app-id': '623998b2c35130073829b2d2',
-        },
-        body: JSON.stringify({
-            query: query,
-            variables: { page: 0, size: 20 },
-        })
-    }).then(async (res) => {
-        if (res.errors) console.log(errors);
-        const vehicles = (await res.json()).data.vehicleList;
-
-        const vList = document.getElementById("vehicleList");
-        console.log(vehicles);
-        for (let v of vehicles) {
-            let e = createVehicleElement(v);
-            e.addEventListener("click", (e) => {
-                setSelectedVehicle(v);
-            });
-            vList.appendChild(e);
-        }
-
-
-    }).catch((e) => {
-        if (e) console.log(e);
-    });
-}
 
 function setSelectedVehicle(vehicle) {
     resetPath();
@@ -327,7 +281,17 @@ var pathPolyline = [];
 var pathMarker = [];
 
 async function main() {
-    vehicleSetup();
+    const vehiclesList = await getVehiclesList();
+    console.log(vehiclesList)
+
+    const vList = document.getElementById("vehicleList");
+    for (let v of vehiclesList) {
+        let e = createVehicleElement(v);
+        e.addEventListener("click", (e) => {
+            setSelectedVehicle(v);
+        });
+        vList.appendChild(e);
+    }
 }
 
 
