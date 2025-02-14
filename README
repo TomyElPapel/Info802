@@ -1,0 +1,86 @@
+PORT=
+OPEN_ROUTE_SERVICE_TOKEN=
+RIDE_INFO_SERVICE_HOST=
+CHARGETRIP_APP_ID=
+CHARGETRIP_PROJECT_ID=
+
+
+# Documentation de l'API Express
+
+## Endpoints
+
+### 1. Obtenir le point le plus proche
+**GET** `/api/closest-point/:lat/:lon`
+
+#### Description
+Retourne le point le plus proche d'une latitude et d'une longitude données.
+
+#### Paramètres
+- `lat` (float) : Latitude du point de départ.
+- `lon` (float) : Longitude du point de départ.
+
+#### Réponse
+- **200 OK** : Retourne un objet JSON avec les informations du point le plus proche.
+- **400 Bad Request** : Erreur lors de la récupération du point.
+
+---
+
+### 2. Obtenir un chemin entre deux points
+**GET** `/api/path/:startLat/:startLon/:endLat/:endLon`
+
+#### Description
+Retourne un chemin entre un point de départ et un point d'arrivée.
+
+#### Paramètres
+- `startLat` (float) : Latitude du point de départ.
+- `startLon` (float) : Longitude du point de départ.
+- `endLat` (float) : Latitude du point d'arrivée.
+- `endLon` (float) : Longitude du point d'arrivée.
+
+#### Réponse
+- **200 OK** : Retourne un objet JSON contenant le chemin calculé.
+- **400 Bad Request** : Erreur lors du calcul du chemin.
+
+---
+
+### 3. Obtenir des données de chemin avec distance et charge
+**GET** `/api/path-data/:startLat/:startLon/:endLat/:endLon/:distance/:charge`
+
+#### Description
+Retourne des informations détaillées sur le chemin, incluant la distance et la charge disponible.
+
+#### Paramètres
+- `startLat` (float) : Latitude du point de départ.
+- `startLon` (float) : Longitude du point de départ.
+- `endLat` (float) : Latitude du point d'arrivée.
+- `endLon` (float) : Longitude du point d'arrivée.
+- `distance` (float) : Distance maximale possible.
+- `charge` (float) : Charge restante du véhicule.
+
+#### Réponse
+- **200 OK** : Retourne un objet JSON avec les informations du chemin détaillées :
+  ```json
+  {
+    "time": 1,
+    "price": 1,
+    "paths": [[
+
+    ]],
+    "totalDistance": 1,
+    "stationNb": 1
+  }
+  ```
+- **400 Bad Request** : Erreur lors du calcul des données du chemin.
+
+---
+
+### 4. Obtenir la liste des véhicules disponibles
+**GET** `/api/vehicles`
+
+#### Description
+Retourne la liste des véhicules disponibles.
+
+#### Réponse
+- **200 OK** : Retourne un tableau JSON contenant la liste des véhicules.
+- **400 Bad Request** : Erreur lors de la récupération des véhicules.
+
