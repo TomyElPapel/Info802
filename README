@@ -2,7 +2,14 @@ PORT=
 OPEN_ROUTE_SERVICE_TOKEN=
 RIDE_INFO_SERVICE_HOST=
 CHARGETRIP_APP_ID=
-CHARGETRIP_PROJECT_ID=
+CHARGETRIP_PROJECT_ID
+
+
+[Lien api cloud : appjs-hkfxb5b3gfctd8ey.francecentral-01.azurewebsites.net](
+    appjs-hkfxb5b3gfctd8ey.francecentral-01.azurewebsites.net
+)
+
+
 
 
 # Documentation de l'API Express
